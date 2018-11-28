@@ -1,0 +1,128 @@
+using System;
+
+namespace FunctionsDLL
+{
+    public class FunctionsDLL
+    {/// <summary>
+     /// Вычисляет прямоугольный треугольник или нет
+     /// </summary>
+     /// <param name="_a">сторона 1</param>
+     /// <param name="_b">сторона 2</param>
+     /// <param name="_c">сторона 3</param>
+     /// <returns></returns>
+        static public bool IsOrthogonal(int _a, int _b, int _c)
+        {
+            if (HeightTriangle(_a, _b, _c, _b) == _a || HeightTriangle(_a, _b, _c, _c) == _b || HeightTriangle(_a, _b, _c, _a) == _c)
+            {
+                Console.WriteLine("Треугольник прямоугольный");
+                return true;
+            }
+            else Console.WriteLine("Треугольник не прямоугольный");
+            return false;
+        }
+
+        /// <summary>
+        /// Площадь треугольника
+        /// </summary>
+        /// <param name="_a"></param>
+        /// <param name="_b"></param>
+        /// <param name="_c"></param>
+        /// <returns></returns>
+        static public float SquareTriangle(int _a, int _b, int _c)
+        {
+            int p = (_a + _b + _c) / 2;
+            return (float)Math.Sqrt(p * (p - _a) * (p - _b) * (p - _c));
+        }
+
+        /// <summary>
+        /// Площадь круга
+        /// </summary>
+        /// <param name="_r"></param>
+        /// <returns></returns>
+        static public float SquareСircle(int _r)
+        {
+            return (float)(Math.PI * Math.Pow(_r, 2));
+        }
+
+        /// <summary>
+        /// Вычисляет высоту треугольника в зависимости от основания
+        /// </summary>
+        /// <param name="_a">сторона 1</param>
+        /// <param name="_b">сторона 2</param>
+        /// <param name="_c">сторона 3</param>
+        /// <param name="f">основание</param>
+        /// <returns></returns>
+        static public float HeightTriangle(int _a, int _b, int _c, int f)
+        {
+            float S = SquareTriangle(_a, _b, _c);
+
+            float h = 2 * S / f;
+            return h;
+        }
+
+        /// <summary>
+        /// Расчёт площади не пересекающегося многоугольника по коодинатам вершин методом Гаусса.
+        /// </summary>
+        /// <param name="listPoints">Массив с координатами вершин</param>
+        /// <returns></returns>
+        static public double SquareGauss(double[,] listPoints)
+        {
+            double s = 0;
+            double sum1 = 0,
+                   sum2 = 0,
+                   mul1 = 0,
+                   mul2 = 0; ;
+            for (int i = 0; i < listPoints.GetLength(0) - 1; i++)//строки
+            {
+                sum1 += listPoints[i, 0] * listPoints[i + 1, 1];
+            }
+
+            for (int i = 0; i < listPoints.GetLength(0) - 1; i++)//строки
+            {
+                sum2 += listPoints[i + 1, 0] * listPoints[i, 1];
+            }
+
+            mul1 = listPoints[listPoints.GetLength(0) - 1, 0] * listPoints[0, 1];//xn*y0
+            mul2 = listPoints[listPoints.GetLength(0) - 1, 1] * listPoints[0, 0];//yn*x0
+
+            s = (sum1 - sum2 + mul1 - mul2) / 2;
+
+            if (s < 0) s *= -1;
+            return s;
+        }
+
+        //делагат для передачи функции в интегратор
+        public delegate double Operation(double x);
+        /// <summary>
+        /// Подынтегральная функция
+        /// </summary>
+        /// <param name="function">Функция одной переменной, от которой необходимо найти интеграл</param>
+        /// <param name="x">>Точка, в которой необходимо вычислить значение</param>
+        /// <returns</returns>
+        static private double F(Operation function, double x)
+        {
+            return function(x);
+        }
+        /// <summary>
+        /// Вычисление интеграла методом трапеций
+        /// </summary>
+        /// <param name="a">Нижняя граница</param>
+        /// <param name="b">Верхняя граница</param>
+        /// <param name="n">Количество разбиений</param>
+        /// <returns></returns>
+        static public double Integrator(Operation function, double a, double b, int n)
+        {
+            double h = ((b - a) / n);//шаг интегрирования
+            double sum = 0;          //сумма с второго отрезка по предпоследний
+            double x = a;            //текущее значение х
+
+            for (int i = 1; i <= n; i++)//цикл вычисления суммы с второго отрезка по предпоследний
+            {
+                x += h;
+                sum += F(function, x);
+            }
+
+            return h * ((F(function, a) - F(function, b)) / 2 + sum);//непосредственно вычисление интеграла
+        }
+    }
+}
